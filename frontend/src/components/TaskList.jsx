@@ -5,10 +5,10 @@ import { useState } from 'react';
 
 const TaskList = (props) => {
   const [tasks, setTasks] = useState(props.tasks);
-  <h1>Dog Care Tasks</h1>
+
   return (
     
-    <ul className="task-list">
+    <ul className="container list-group mt-5" style={{ maxWidth: '600px' }}>
       {tasks.map((task) => (
         <TaskItem key={task.id} task={task} />
       ))}

@@ -7,10 +7,11 @@ function App() {
 
   return (
     <>
-      <div>
-        <h1>Dog Care Tasks</h1>
-        <TaskList tasks={tasks} />
-      </div>
+   
+        
+          <TaskList tasks={tasks} />
+        
+      
     </>
   )
 }
