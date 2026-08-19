@@ -1,19 +1,26 @@
-import react from 'react';
+import { useEffect, useState } from 'react';
 import TaskItem from './TaskItem.jsx';
-import { useState } from 'react';
 
+const TaskList = () => {
+  const [tasks, setTasks] = useState([]);
 
-const TaskList = (props) => {
-  const [tasks, setTasks] = useState(props.tasks);
+  useEffect(() => {
+    fetch('http://localhost:3000/tasks')
+      .then(response => response.json())
+      .then(data => setTasks(data));
+  }, []);
 
   return (
-    
-    <ul className="container list-group mt-5" style={{ maxWidth: '600px' }}>
-      {tasks.map((task) => (
-        <TaskItem key={task.id} task={task} />
-      ))}
-    </ul>
-  )
-}
+    <>
+      <h1>Dog Care Tasks</h1>
 
-export default TaskList
+      <ul className="container list-group">
+        {tasks.map(task => (
+          <TaskItem key={task.id} task={task} />
+        ))}
+      </ul>
+    </>
+  );
+};
+
+export default TaskList;
