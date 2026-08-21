@@ -1,3 +1,4 @@
+const supabase = require('./supabase');
 const express = require('express');
 const cors = require('cors');
 
@@ -38,8 +39,33 @@ const tasks = [
   },
 ];
 
-app.get('/tasks', (req, res) => {
-  res.json(tasks);
+app.get('/tasks', async (req, res) => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+app.patch('/tasks/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ completed: req.body.completed })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
 });
 
 app.listen(PORT, () => {
