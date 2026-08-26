@@ -38,6 +38,22 @@ app.patch('/tasks/:id', async (req, res) => {
   res.json(data);
 });
 
+app.post('/tasks', async (req, res) => {
+  const { title, time, icon, completed } = req.body;
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert([{ title, time, icon, completed }])
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
