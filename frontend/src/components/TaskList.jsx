@@ -42,6 +42,23 @@ const TaskList = () => {
 
   }
 
+  const handleAddTask = async () => {
+    const response = await fetch('https://dogchecker.onrender.com/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTask),
+    });
+
+    const addedTask = await response.json();
+    setTasks([...tasks, addedTask]);
+    setNewTask({ title: '', time: '', icon: '', completed: false });
+    handleClose();
+  }
+
+
+
   return (
     <>
       <h1>Dog Care Tasks</h1>
@@ -85,7 +102,7 @@ const TaskList = () => {
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" onClick={handleClose}>
+            <Button variant="primary" onClick={handleAddTask}>
               Save Changes
             </Button>
           </Modal.Footer>
