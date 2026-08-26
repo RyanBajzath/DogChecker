@@ -34,7 +34,10 @@ const TaskList = () => {
     const updatedTask = await response.json();
     setTasks(currentTasks =>
       currentTasks.map(tasks =>
-        tasks.id === updatedTask.id ? updatedTask : tasks
+       
+        tasks.id === updatedTask.id
+          ? { ...tasks, completed: updatedTask.completed }
+          : tasks
       )
     )
 
