@@ -34,10 +34,8 @@ app.get('/tasks', async (req, res) => {
     .order('id', { ascending: true });
 
   if (tasksError) {
-    return res.json([]);
-  }
-
-  const { data: logs, error: logsError } = await supabase
+    return res.json([]); }
+     const { data: logs, error: logsError } = await supabase
     .from('task_logs')
     .select('*')
    .eq('date', selectedDate);
