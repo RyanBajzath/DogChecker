@@ -111,11 +111,20 @@ app.patch('/tasks/:id', async (req, res) => {
   });
 });
 app.post('/tasks', async (req, res) => {
-  const { title, time, icon, completed } = req.body;
+  const createdAt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei'
+  }).format(new Date());
+
+  const { title, time, icon } = req.body;
 
   const { data, error } = await supabase
     .from('tasks')
-    .insert([{ title, time, icon, completed }])
+    .insert([{
+      title,
+      time,
+      icon,
+      created_at: createdAt
+    }])
     .select()
     .single();
 
