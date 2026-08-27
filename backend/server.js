@@ -21,6 +21,8 @@ app.get('/tasks', async (req, res) => {
   const { data: tasks, error: tasksError } = await supabase
     .from('tasks')
     .select('*')
+    .lte(`created_at`, selectedDate)
+    .or(`archived_at.is.null,archived_at.gt.${selectedDate}`)
     .order('id', { ascending: true });
 
   if (tasksError) {
