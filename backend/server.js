@@ -34,8 +34,7 @@ app.get('/tasks', async (req, res) => {
     .order('id', { ascending: true });
 
   if (tasksError) {
-    return 
-  res.json([]);
+    return res.json([]);
   }
 
   const { data: logs, error: logsError } = await supabase
