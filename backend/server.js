@@ -18,6 +18,14 @@ app.get('/tasks', async (req, res) => {
     timeZone: 'Asia/Taipei'
   }).format(new Date());
 
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei'
+  }).format(new Date());
+
+  if (selectedDate > today) {
+    return res.status(400).json({ error: 'Selected date cannot be in the future.' });
+  }
+
   const { data: tasks, error: tasksError } = await supabase
     .from('tasks')
     .select('*')
