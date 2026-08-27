@@ -10,7 +10,11 @@ app.use(express.json());
 
 
 app.get('/tasks', async (req, res) => {
-  const today = new Intl.DateTimeFormat('en-CA', {
+
+
+  const selectedDate =
+  req.query.date ||
+  new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Taipei'
   }).format(new Date());
 
@@ -26,7 +30,7 @@ app.get('/tasks', async (req, res) => {
   const { data: logs, error: logsError } = await supabase
     .from('task_logs')
     .select('*')
-    .eq('date', today);
+   .eq('date', selectedDate);
 
   if (logsError) {
     return res.status(500).json({ error: logsError.message });

@@ -12,14 +12,18 @@ const TaskList = () => {
 
   const [show, setShow] = useState(false);
 
+ const [selectedDate, setSelectedDate] = useState(
+  new Date().toISOString().split('T')[0]
+);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  useEffect(() => {
-    fetch('https://dogchecker.onrender.com/tasks')
-      .then(response => response.json())
-      .then(data => setTasks(data));
-  }, []);
+useEffect(() => {
+  fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
+    .then(response => response.json())
+    .then(data => setTasks(data));
+}, [selectedDate]);
 
   const handleTaskClick = async (task) => {
     const response = await fetch(`https://dogchecker.onrender.com/tasks/${task.id}`, {
@@ -60,11 +64,28 @@ const TaskList = () => {
     handleClose();
   }
 
+  const changeDate = (days) => {
+  const date = new Date(selectedDate);
+  date.setDate(date.getDate() + days);
+
+  setSelectedDate(date.toISOString().split('T')[0]);
+};
 
 
   return (
     <>
       <h1>Dog Care Tasks</h1>
+      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+  <Button onClick={() => changeDate(-1)}>
+    ←
+  </Button>
+
+  <span>{selectedDate}</span>
+
+  <Button onClick={() => changeDate(1)}>
+    →
+  </Button>
+</div>
 
       <ul className="container list-group">
         {tasks.map(task => (
