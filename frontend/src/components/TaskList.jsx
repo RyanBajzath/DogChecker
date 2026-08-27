@@ -19,11 +19,23 @@
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-  useEffect(() => {
-    fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
-      .then(response => response.json())
-      .then(data => setTasks(data));
-  }, [selectedDate]);
+useEffect(() => {
+  fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
+    .then(async response => {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    })
+    .then(data => setTasks(data))
+    .catch(error => {
+      console.log(error.message);
+      setTasks([]);
+    });
+}, [selectedDate]);;
 
     const handleTaskClick = async (task) => {
       const response = await fetch(`https://dogchecker.onrender.com/tasks/${task.id}`, {
