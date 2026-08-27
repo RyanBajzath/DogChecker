@@ -66,16 +66,13 @@ app.get('/tasks', async (req, res) => {
 });
 app.patch('/tasks/:id', async (req, res) => {
   const taskId = Number(req.params.id);
-
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Taipei'
-  }).format(new Date());
+  const selectedDate = req.query.date;
 
   const { data: existingLog, error: findError } = await supabase
     .from('task_logs')
     .select('*')
     .eq('task_id', taskId)
-    .eq('date', today)
+    .eq('date', selectedDate)
     .maybeSingle();
 
   if (findError) {
@@ -97,7 +94,7 @@ app.patch('/tasks/:id', async (req, res) => {
       .from('task_logs')
       .insert([{
         task_id: taskId,
-        date: today,
+        date: selectedDate,
         completed: req.body.completed
       }])
       .select()

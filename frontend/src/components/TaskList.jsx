@@ -38,7 +38,7 @@ useEffect(() => {
 }, [selectedDate]);;
 
     const handleTaskClick = async (task) => {
-      const response = await fetch(`https://dogchecker.onrender.com/tasks/${task.id}`, {
+      const response = await fetch(`https://dogchecker.onrender.com/tasks/${task.id}?date=${selectedDate}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
