@@ -1,44 +1,47 @@
-  import { useEffect, useState } from 'react';
-  import TaskItem from './TaskItem.jsx';
+import { useEffect, useState } from 'react';
+import TaskItem from './TaskItem.jsx';
 
-  import Button from 'react-bootstrap/Button';
-  import Modal from 'react-bootstrap/Modal';
-  import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 
 
-  const TaskList = () => {
-    const [tasks, setTasks] = useState([]);
-    const [newTask, setNewTask] = useState({ title: '', time: '', icon: '', completed: false });
+const TaskList = () => {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState({ title: '', time: '', icon: '', completed: false });
 
-    const [show, setShow] = useState(false);
+  const [show, setShow] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
+   new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei'
+  }).format(new Date())
   );
 
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
-useEffect(() => {
-  fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
-    .then(async response => {
-      const data = await response.json();
+  useEffect(() => {
+    fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
+      .then(async response => {
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error);
-      }
+        if (!response.ok) {
+          throw new Error(data.error);
+        }
 
-      return data;
-    })
-    .then(data => setTasks(data))
-    .catch(error => {
-      console.log(error.message);
-      setTasks([]);
-    });
-}, [selectedDate]);;
+        return data;
+      })
+      .then(data => setTasks(data))
+      .catch(error => {
+        console.log(error.message);
+        setTasks([]);
+      });
+  }, [selectedDate]);;
 
-    const handleTaskClick = async (task) => {
-      const response = await fetch(`https://dogchecker.onrender.com/tasks/${task.id}?date=${selectedDate}`, {
+  const handleTaskClick = async (task) => {
+    const response = await
+      fetch(`https://dogchecker.onrender.com/tasks/${task.id}?date=${selectedDate}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -47,36 +50,36 @@ useEffect(() => {
       });
 
 
-      const updatedTask = await response.json();
-      setTasks(currentTasks =>
-        currentTasks.map(tasks =>
-        
-          tasks.id === updatedTask.id
-            ? { ...tasks, completed: updatedTask.completed }
-            : tasks
-        )
+    const updatedTask = await response.json();
+    setTasks(currentTasks =>
+      currentTasks.map(tasks =>
+
+        tasks.id === updatedTask.id
+          ? { ...tasks, completed: updatedTask.completed }
+          : tasks
       )
+    )
 
 
 
-    }
+  }
 
-    const handleAddTask = async () => {
-      const response = await fetch('https://dogchecker.onrender.com/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newTask),
-      });
+  const handleAddTask = async () => {
+    const response = await fetch('https://dogchecker.onrender.com/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTask),
+    });
 
-      const addedTask = await response.json();
-      setTasks([...tasks, addedTask]);
-      setNewTask({ title: '', time: '', icon: '', completed: false });
-      handleClose();
-    }
+    const addedTask = await response.json();
+    setTasks([...tasks, addedTask]);
+    setNewTask({ title: '', time: '', icon: '', completed: false });
+    handleClose();
+  }
 
-    const changeDate = (days) => {
+  const changeDate = (days) => {
     const date = new Date(selectedDate);
     date.setDate(date.getDate() + days);
 
@@ -84,69 +87,69 @@ useEffect(() => {
   };
 
 
-    return (
-      <>
-        <h1>Dog Care Tasks</h1>
-        <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
-    <Button onClick={() => changeDate(-1)}>
-      ←
-    </Button>
+  return (
+    <>
+      <h1>Dog Care Tasks</h1>
+      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+        <Button onClick={() => changeDate(-1)}>
+          ←
+        </Button>
 
-    <span>{selectedDate}</span>
+        <span>{selectedDate}</span>
 
-    <Button onClick={() => changeDate(1)}>
-      →
-    </Button>
-  </div>
+        <Button onClick={() => changeDate(1)}>
+          →
+        </Button>
+      </div>
 
-        <ul className="container list-group">
-          {tasks.map(task => (
-            <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} />
-          ))}
-          <li className="list-group-item justify-content-center d-flex align-items-center" >
-            <Button variant="primary" onClick={handleShow}>
-              +
+      <ul className="container list-group">
+        {tasks.map(task => (
+          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} />
+        ))}
+        <li className="list-group-item justify-content-center d-flex align-items-center" >
+          <Button variant="primary" onClick={handleShow}>
+            +
+          </Button>
+        </li>
+
+
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Modal heading</Modal.Title>
+          </Modal.Header>
+          <Modal.Body><Form>
+            <Form.Group>
+              <Form.Label>Task name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter task name"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Time</Form.Label>
+              <Form.Control
+                type="time"
+                value={newTask.time}
+                onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
+              />
+            </Form.Group>
+          </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
             </Button>
-          </li>
+            <Button variant="primary" onClick={handleAddTask}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </ul>
 
+    </>
+  );
+};
 
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>Modal heading</Modal.Title>
-            </Modal.Header>
-            <Modal.Body><Form>
-              <Form.Group>
-                <Form.Label>Task name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter task name"
-                  value={newTask.title}
-                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group className="mt-3">
-                <Form.Label>Time</Form.Label>
-                <Form.Control
-                  type="time"
-                  value={newTask.time}
-                  onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
-                />
-              </Form.Group>
-            </Form>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-              <Button variant="primary" onClick={handleAddTask}>
-                Save Changes
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </ul>
-
-      </>
-    );
-  };
-
-  export default TaskList;  
+export default TaskList;  
