@@ -13,9 +13,9 @@ const TaskList = () => {
   const [show, setShow] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState(
-   new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Taipei'
-  }).format(new Date())
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Taipei'
+    }).format(new Date())
   );
 
   const handleClose = () => setShow(false);
@@ -87,6 +87,14 @@ const TaskList = () => {
   };
 
 
+  const handleGoToToday = () => {
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Taipei'
+    }).format(new Date());
+
+    setSelectedDate(today);
+  };
+
   return (
     <>
       <h1>Dog Care Tasks</h1>
@@ -100,7 +108,17 @@ const TaskList = () => {
         <Button onClick={() => changeDate(1)}>
           →
         </Button>
+
       </div>
+
+      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">   <Button onClick={handleGoToToday} >
+        Today
+      </Button>
+      </div>
+      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+        <span>Click on a task to mark it as completed or not.</span>
+      </div>
+
 
       <ul className="container list-group">
         {tasks.map(task => (
