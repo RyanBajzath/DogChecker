@@ -95,6 +95,22 @@ const TaskList = () => {
     setSelectedDate(today);
   };
 
+  const handleArchiveTask = async (taskId) => {
+    const response = await fetch(`https://dogchecker.onrender.com/tasks/${taskId}/archive`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      setTasks(currentTasks => currentTasks.filter(task => task.id !== taskId));
+    } else {
+      console.error('Failed to archive task');
+    }
+    setNewTask({ title: '', time: '' });
+  };
+
   return (
     <>
       <h1>Dog Care Tasks</h1>
@@ -123,7 +139,7 @@ const TaskList = () => {
 
       <ul className="container list-group">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} />
+          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} onArchiveTask={handleArchiveTask} />
         ))}
         <li className="list-group-item justify-content-center d-flex align-items-center" >
           <Button variant="primary" onClick={handleShow}>
