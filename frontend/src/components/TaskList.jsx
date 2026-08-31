@@ -8,7 +8,7 @@ import Form from 'react-bootstrap/Form';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', time: '', icon: '', completed: false });
+  const [newTask, setNewTask] = useState({ title: '', time: '' });
 
   const [show, setShow] = useState(false);
 
@@ -111,7 +111,8 @@ const TaskList = () => {
 
       </div>
 
-      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">   <Button onClick={handleGoToToday} >
+      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">   
+        <Button onClick={handleGoToToday} >
         Today
       </Button>
       </div>

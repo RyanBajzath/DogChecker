@@ -31,7 +31,7 @@ app.get('/tasks', async (req, res) => {
     .select('*')
     .lte(`created_at`, selectedDate)
     .or(`archived_at.is.null,archived_at.gt.${selectedDate}`)
-    .order('id', { ascending: true });
+    .order('time', { ascending: true });
 
   if (tasksError) {
     return res.json([]); }
