@@ -110,6 +110,27 @@ app.patch('/tasks/:id', async (req, res) => {
     completed: data.completed
   });
 });
+
+app.patch('/tasks/:id/archive', async (req, res) => {
+  const taskId = Number(req.params.id);
+
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei'
+  }).format(new Date());
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ archived_at: today })
+    .eq('id', taskId)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
 app.post('/tasks', async (req, res) => {
   const createdAt = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Taipei'
