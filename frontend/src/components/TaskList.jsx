@@ -96,6 +96,8 @@ const TaskList = () => {
   };
 
   const handleArchiveTask = async (taskId) => {
+    const confirm = window.confirm("Are you sure you want to archive this task?");
+    if (!confirm) return;
     const response = await fetch(`https://dogchecker.onrender.com/tasks/${taskId}/archive`, {
       method: 'PATCH',
       headers: {
