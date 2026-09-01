@@ -17,16 +17,18 @@ const TaskItem = (prop) => {
       {prop.task.completed ? "✅" : "⭕"}
     </span>
 
-    <Button
-      variant="outline-danger"
-      size="sm"
-      onClick={(e) => {
-        e.stopPropagation();
-        prop.onArchiveTask(prop.task.id);
-      }}
-    >
-      ×
-    </Button>
+  <Button
+  variant={prop.selectedDate < prop.today ? "secondary" : "outline-danger"}
+  size="sm"
+  disabled={prop.selectedDate < prop.today}
+  onClick={(e) => {
+    e.stopPropagation();
+    prop.onArchiveTask(prop.task.id);
+  }}
+  className={prop.selectedDate < prop.today ? "opacity-50" : ""}
+>
+  ×
+</Button>
   </div>
 
 </div>

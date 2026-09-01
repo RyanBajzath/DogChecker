@@ -12,6 +12,10 @@ const TaskList = () => {
 
   const [show, setShow] = useState(false);
 
+   const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Taipei'
+    }).format(new Date());
+
   const [selectedDate, setSelectedDate] = useState(
     new Intl.DateTimeFormat('en-CA', {
       timeZone: 'Asia/Taipei'
@@ -37,7 +41,7 @@ const TaskList = () => {
         console.log(error.message);
         setTasks([]);
       });
-  }, [selectedDate]);;
+  }, [selectedDate]);
 
   const handleTaskClick = async (task) => {
     const response = await
@@ -88,9 +92,7 @@ const TaskList = () => {
 
 
   const handleGoToToday = () => {
-    const today = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Taipei'
-    }).format(new Date());
+   
 
     setSelectedDate(today);
   };
@@ -110,7 +112,7 @@ const TaskList = () => {
     } else {
       console.error('Failed to archive task');
     }
-    setNewTask({ title: '', time: '' });
+  
   };
 
   return (
@@ -141,7 +143,7 @@ const TaskList = () => {
 
       <ul className="container list-group">
         {tasks.map(task => (
-          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} onArchiveTask={handleArchiveTask} />
+          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} onArchiveTask={handleArchiveTask} selectedDate={selectedDate} today={today} />
         ))}
         <li className="list-group-item justify-content-center d-flex align-items-center" >
           <Button variant="primary" onClick={handleShow}>
