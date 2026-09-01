@@ -1,194 +1,266 @@
-import { useEffect, useState } from 'react';
-import TaskItem from './TaskItem.jsx';
+  import { useEffect, useState } from 'react';
+  import TaskItem from './TaskItem.jsx';
 
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
+  import Button from 'react-bootstrap/Button';
+  import Modal from 'react-bootstrap/Modal';
+  import Form from 'react-bootstrap/Form';
 
 
-const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', time: '' });
+  const TaskList = () => {
+    const [tasks, setTasks] = useState([]);
+    const [newTask, setNewTask] = useState({ title: '', time: '' });
+    const [editTask, setEditTask] = useState(null);
 
-  const [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
 
-   const today = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Taipei'
-    }).format(new Date());
+    const [showEdit, setShowEdit] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState(
-    new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Taipei'
-    }).format(new Date())
-  );
+    const today = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Taipei'
+      }).format(new Date());
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+    const [selectedDate, setSelectedDate] = useState(
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Taipei'
+      }).format(new Date())
+    );
 
-  useEffect(() => {
-    fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
-      .then(async response => {
-        const data = await response.json();
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
-        if (!response.ok) {
-          throw new Error(data.error);
-        }
+    useEffect(() => {
+      fetch(`https://dogchecker.onrender.com/tasks?date=${selectedDate}`)
+        .then(async response => {
+          const data = await response.json();
 
-        return data;
-      })
-      .then(data => setTasks(data))
-      .catch(error => {
-        console.log(error.message);
-        setTasks([]);
+          if (!response.ok) {
+            throw new Error(data.error);
+          }
+
+          return data;
+        })
+        .then(data => setTasks(data))
+        .catch(error => {
+          console.log(error.message);
+          setTasks([]);
+        });
+    }, [selectedDate]);
+
+    const handleTaskClick = async (task) => {
+      const response = await
+        fetch(`https://dogchecker.onrender.com/tasks/${task.id}?date=${selectedDate}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ completed: !task.completed }),
+        });
+
+
+      const updatedTask = await response.json();
+      setTasks(currentTasks =>
+        currentTasks.map(tasks =>
+
+          tasks.id === updatedTask.id
+            ? { ...tasks, completed: updatedTask.completed }
+            : tasks
+        )
+      )
+
+
+
+    }
+
+    const handleAddTask = async () => {
+      const response = await fetch('https://dogchecker.onrender.com/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTask),
       });
-  }, [selectedDate]);
 
-  const handleTaskClick = async (task) => {
-    const response = await
-      fetch(`https://dogchecker.onrender.com/tasks/${task.id}?date=${selectedDate}`, {
+      const addedTask = await response.json();
+      setTasks([...tasks, addedTask]);
+      setNewTask({ title: '', time: '', icon: '', completed: false });
+      handleClose();
+    }
+
+    const changeDate = (days) => {
+      const date = new Date(selectedDate);
+      date.setDate(date.getDate() + days);
+
+      setSelectedDate(date.toISOString().split('T')[0]);
+    };
+
+
+    const handleGoToToday = () => {
+    
+
+      setSelectedDate(today);
+    };
+
+  const handleEditTask = async () => {
+    const response = await fetch(
+      `https://dogchecker.onrender.com/tasks/${editTask.id}/edit`,
+      {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ completed: !task.completed }),
-      });
-
+        body: JSON.stringify(editTask),
+      }
+    );
 
     const updatedTask = await response.json();
-    setTasks(currentTasks =>
-      currentTasks.map(tasks =>
 
-        tasks.id === updatedTask.id
-          ? { ...tasks, completed: updatedTask.completed }
-          : tasks
-      )
-    )
+     setTasks(currentTasks =>
+  currentTasks.map(task =>
+    task.id === updatedTask.id
+      ? { ...task, ...updatedTask }
+      : task
+  )
+);
 
-
-
-  }
-
-  const handleAddTask = async () => {
-    const response = await fetch('https://dogchecker.onrender.com/tasks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTask),
-    });
-
-    const addedTask = await response.json();
-    setTasks([...tasks, addedTask]);
-    setNewTask({ title: '', time: '', icon: '', completed: false });
-    handleClose();
-  }
-
-  const changeDate = (days) => {
-    const date = new Date(selectedDate);
-    date.setDate(date.getDate() + days);
-
-    setSelectedDate(date.toISOString().split('T')[0]);
+    setShowEdit(false);
   };
 
-
-  const handleGoToToday = () => {
-   
-
-    setSelectedDate(today);
+  const handleShowEdit = (task) => {
+    setEditTask(task);
+    setShowEdit(true);
   };
 
-  const handleArchiveTask = async (taskId) => {
-    const confirm = window.confirm("Are you sure you want to archive this task?");
-    if (!confirm) return;
-    const response = await fetch(`https://dogchecker.onrender.com/tasks/${taskId}/archive`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      setTasks(currentTasks => currentTasks.filter(task => task.id !== taskId));
-    } else {
-      console.error('Failed to archive task');
-    }
-  
+  const handleCloseEdit = () => {
+    setShowEdit(false);
+    setEditTask(null);
   };
 
-  return (
-    <>
-      <h1>Dog Care Tasks</h1>
-      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
-        <Button onClick={() => changeDate(-1)}>
-          ←
-        </Button>
+    const handleArchiveTask = async (taskId) => {
+      const confirm = window.confirm("Are you sure you want to archive this task?");
+      if (!confirm) return;
+      const response = await fetch(`https://dogchecker.onrender.com/tasks/${taskId}/archive`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-        <span>{selectedDate}</span>
+      if (response.ok) {
+        setTasks(currentTasks => currentTasks.filter(task => task.id !== taskId));
+      } else {
+        console.error('Failed to archive task');
+      }
+    
+    };
 
-        <Button onClick={() => changeDate(1)}>
-          →
-        </Button>
-
-      </div>
-
-      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">   
-        <Button onClick={handleGoToToday} >
-        Today
-      </Button>
-      </div>
-      <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
-        <span>Click on a task to mark it as completed or not.</span>
-      </div>
-
-
-      <ul className="container list-group">
-        {tasks.map(task => (
-          <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} onArchiveTask={handleArchiveTask} selectedDate={selectedDate} today={today} />
-        ))}
-        <li className="list-group-item justify-content-center d-flex align-items-center" >
-          <Button variant="primary" onClick={handleShow}>
-            +
+    return (
+      <>
+        <h1>Dog Care Tasks</h1>
+        <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+          <Button onClick={() => changeDate(-1)}>
+            ←
           </Button>
-        </li>
+
+          <span>{selectedDate}</span>
+
+          <Button onClick={() => changeDate(1)}>
+            →
+          </Button>
+
+        </div>
+
+        <div className="d-flex justify-content-center align-items-center gap-3 mb-3">   
+          <Button onClick={handleGoToToday} >
+          Today
+        </Button>
+        </div>
+        <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+          <span>Click on a task to mark it as completed or not.</span>
+        </div>
 
 
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Modal heading</Modal.Title>
-          </Modal.Header>
-          <Modal.Body><Form>
-            <Form.Group>
-              <Form.Label>Task name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter task name"
-                value={newTask.title}
-                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mt-3">
-              <Form.Label>Time</Form.Label>
-              <Form.Control
-                type="time"
-                value={newTask.time}
-                onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
-              />
-            </Form.Group>
-          </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
+        <ul className="container list-group">
+          {tasks.map(task => (
+            <TaskItem key={task.id} task={task} onTaskClick={handleTaskClick} onArchiveTask={handleArchiveTask} selectedDate={selectedDate} today={today} onEditTask={handleShowEdit} />
+          ))}
+          <li className="list-group-item justify-content-center d-flex align-items-center" >
+            <Button variant="primary" onClick={handleShow}>
+              +
             </Button>
-            <Button variant="primary" onClick={handleAddTask}>
-              Save Changes
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </ul>
+          </li>
 
-    </>
-  );
-};
 
-export default TaskList;  
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Modal heading</Modal.Title>
+            </Modal.Header>
+            <Modal.Body><Form>
+              <Form.Group>
+                <Form.Label>Task name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter task name"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group className="mt-3">
+                <Form.Label>Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={newTask.time}
+                  onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
+                />
+              </Form.Group>
+            </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleClose}>
+                Close
+              </Button>
+              <Button variant="primary" onClick={handleAddTask}>
+                Save Changes
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
+          <Modal show={showEdit} onHide={handleCloseEdit}>
+            <Modal.Header closeButton>
+              <Modal.Title>Edit {editTask?.title}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body><Form>
+              <Form.Group>
+                <Form.Label>Task name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Edit task name"
+                value={editTask?.title || ''}
+                  onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group className="mt-3">
+                <Form.Label>Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={editTask?.time || ''}
+                  onChange={(e) => setEditTask({ ...editTask, time: e.target.value })}
+                />
+              </Form.Group>
+            </Form>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="primary" onClick={handleEditTask}>
+                Save Changes
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </ul>
+
+      </>
+    );
+  };
+
+  export default TaskList;  

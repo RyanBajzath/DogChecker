@@ -131,6 +131,25 @@ app.patch('/tasks/:id/archive', async (req, res) => {
 
   res.json(data);
 });
+
+app.patch('/tasks/:id/edit', async (req, res) => {
+  const taskId = Number(req.params.id);
+  const { title, time, icon } = req.body;
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ title, time, icon })
+    .eq('id', taskId)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
+  res.json(data);
+});
+
 app.post('/tasks', async (req, res) => {
   const createdAt = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Taipei'
