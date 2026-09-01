@@ -17,11 +17,11 @@
         {prop.task.completed ? "✅" : "⭕"}
       </span>
     
-      <Button  onClick={(e) => {
+      <Button variant="outline-secondary" size="sm" onClick={(e) => {
       e.stopPropagation();
       prop.onEditTask(prop.task);
     }} >
-        edit
+        ✎
       </Button>
 
     <Button
